@@ -1,3 +1,7 @@
 # general
 django
 djangorestframework
+gunicorn
+
+# db
+psycopg2-binary

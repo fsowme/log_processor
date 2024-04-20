@@ -1,0 +1,5 @@
+POSTGRES_PASSWORD=application
+POSTGRES_USER=application
+POSTGRES_DB=application
+POSTGRES_HOST=log-processor-postgres
+POSTGRES_PORT=5432
