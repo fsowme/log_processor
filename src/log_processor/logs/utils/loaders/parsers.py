@@ -1,6 +1,7 @@
 import abc
 import json
 import typing
+from collections.abc import Generator, Iterable
 
 from .exceptions import EventParsingError
 
@@ -12,14 +13,17 @@ class BaseParser(metaclass=abc.ABCMeta):
         pass
 
     @abc.abstractmethod
-    def parse(self, content: typing.Any) -> typing.Any:
+    def parse(self, content: Iterable[str|bytes], strict: bool = False) -> Generator[typing.Any, None, None]:
         pass
+
+
+ParserType = typing.TypeVar('ParserType', bound=BaseParser)
 
 
 class JsonParser(BaseParser):
     name = 'json'
 
-    def parse(self, content: typing.Any, strict: bool = False) -> typing.Any:
+    def parse(self, content: Iterable[str|bytes], strict: bool = False) -> Generator[typing.Any, None, None]:
         for line in content:
             try:
                 yield json.loads(line)

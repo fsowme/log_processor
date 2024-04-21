@@ -19,6 +19,7 @@ class Command(BaseCommand):
             loader_parser.add_argument('--reader', choices=loader_cls.reader_names(), required=True)
             loader_parser.add_argument('--parser', choices=loader_cls.parser_names(), required=True)
             loader_parser.add_argument('--source', required=True)
+            loader_parser.add_argument('--batch_size', default=1000, type=int)
 
     def handle(self, *args, **options):
         try:

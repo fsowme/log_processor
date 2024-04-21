@@ -1,38 +1,40 @@
 import abc
+import typing
 from datetime import datetime
 
 from log_processor.logs.models import NginxLog
 from .exceptions import InvalidEventFormat, LoaderNotFound, ParserNotRegistered, ReaderNotRegistered
-from .parsers import JsonParser
-from .readers import FileReader
+from .parsers import JsonParser, ParserType
+from .readers import FileReader, ReaderType
 
 
 class BaseLoader(metaclass=abc.ABCMeta):
-    def __init__(self, reader_name, parser_name):
-        self.reader = self._get_reader_by_name(reader_name)
-        self.parser = self._get_parser_by_name(parser_name)
+    def __init__(self, reader_name: str, parser_name: str) -> None:
+        self.reader_class = self._get_reader_class(reader_name)
+        self.parser_class = self._get_parser_class(parser_name)
 
-    def load(self, log_path, strict=False):
+    def load(self, log_path: str, strict: bool = False, batch_size: typing.Optional[int] = None) -> None:
+        batch_size = batch_size or self.batch_size
         objects = []
-        with self.reader(log_path) as content:
-            for log_event in self.parser().parse(content, strict):
+        with self.reader_class(log_path) as content:
+            for log_event in self.parser_class().parse(content, strict):
                 try:
                     objects.append(self.set_instance(log_event))
                 except InvalidEventFormat:
                     if strict:
                         raise
                     continue
-                if len(objects) >= self.batch_size:
+                if len(objects) >= batch_size:
                     self.create_objects(objects)
                     objects = []
             if objects:
                 self.create_objects(objects)
 
-    def create_objects(self, objects):
+    def create_objects(self, objects) -> None:
         self.model.objects.bulk_create(objects)
 
     @abc.abstractmethod
-    def set_instance(self, data):
+    def set_instance(self, data: typing.Any):
         pass
 
     @property
@@ -42,7 +44,7 @@ class BaseLoader(metaclass=abc.ABCMeta):
 
     @property
     @abc.abstractmethod
-    def name(self):
+    def name(self) -> str:
         pass
 
     @property
@@ -52,33 +54,36 @@ class BaseLoader(metaclass=abc.ABCMeta):
 
     @property
     @abc.abstractmethod
-    def parsers(self) -> list:
+    def parser_classes(self) -> list[type[ParserType]]:
         pass
 
     @property
     @abc.abstractmethod
-    def readers(self) -> list:
+    def reader_classes(self) -> list[type[ReaderType]]:
         pass
 
     @classmethod
-    def parser_names(cls):
-        return [parser.name for parser in cls.parsers]
+    def parser_names(cls) -> list[str]:
+        return [parser.name for parser in cls.parser_classes]
 
     @classmethod
-    def reader_names(cls):
-        return [reader.name for reader in cls.readers]
+    def reader_names(cls) -> list[str]:
+        return [reader.name for reader in cls.reader_classes]
 
-    def _get_reader_by_name(self, name):
-        for reader in self.readers:
-            if reader.name == name:
-                return reader
+    def _get_reader_class(self, name: str) -> type[ReaderType]:
+        for reader_class in self.reader_classes:
+            if reader_class.name == name:
+                return reader_class
         raise ReaderNotRegistered(f'Reader "{name}" is not registered for this log.')
 
-    def _get_parser_by_name(self, name):
-        for parser in self.parsers:
-            if parser.name == name:
-                return parser
+    def _get_parser_class(self, name: str) -> type[ParserType]:
+        for parser_class in self.parser_classes:
+            if parser_class.name == name:
+                return parser_class
         raise ParserNotRegistered(f'Format {name} is not registered for this log')
+
+
+LoaderType = typing.TypeVar('LoaderType', bound=BaseLoader)
 
 
 class NginxLoader(BaseLoader):
@@ -86,10 +91,10 @@ class NginxLoader(BaseLoader):
     model = NginxLog
     batch_size = 1000
     _time_format = '%d/%b/%Y:%H:%M:%S %z'
-    readers = [FileReader]
-    parsers = [JsonParser]
+    reader_classes = [FileReader]
+    parser_classes = [JsonParser]
 
-    def set_instance(self, data):
+    def set_instance(self, data: typing.Any):
         try:
             method, uri, _ = data['request'].split()
             return self.model(
@@ -108,7 +113,7 @@ LOADER_CLASSES = [NginxLoader]
 LOADERS_CLASSES_BY_NAME = {loader.name: loader for loader in LOADER_CLASSES}
 
 
-def get_loader_klass(name):
+def get_loader_klass(name: str) -> type[LoaderType]:
     try:
         return LOADERS_CLASSES_BY_NAME[name]
     except KeyError:
