@@ -12,7 +12,8 @@ class BaseLoader(metaclass=abc.ABCMeta):
         self.reader = self._get_reader_by_name(reader_name)
         self.parser = self._get_parser_by_name(parser_name)
 
-    def load(self, log_path, strict=False):
+    def load(self, log_path, strict=False, batch_size: int = None):
+        batch_size = batch_size or self.batch_size
         objects = []
         with self.reader(log_path) as content:
             for log_event in self.parser().parse(content, strict):
@@ -22,7 +23,7 @@ class BaseLoader(metaclass=abc.ABCMeta):
                     if strict:
                         raise
                     continue
-                if len(objects) >= self.batch_size:
+                if len(objects) >= batch_size:
                     self.create_objects(objects)
                     objects = []
             if objects:
