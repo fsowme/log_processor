@@ -1,6 +1,7 @@
 # general
 django
 djangorestframework
+django-filter
 gunicorn
 
 # db

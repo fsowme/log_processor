@@ -34,6 +34,7 @@ INSTALLED_APPS = [
     'log_processor.logs',
 
     'rest_framework',
+    'django_filters',
 
     'django.contrib.admin',
     'django.contrib.auth',
