@@ -6,3 +6,10 @@ gunicorn
 
 # db
 psycopg2-binary
+
+# tests
+factory-boy
+jsonschema
+
+# python
+pip-tools
