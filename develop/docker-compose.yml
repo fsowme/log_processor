@@ -1,0 +1,39 @@
+services:
+
+  postgres:
+    container_name: log-processor-postgres
+    image: postgres:16.2-alpine3.19
+    volumes:
+      - ./data/postgres:/var/lib/postgresql/data
+    env_file:
+      - ./envs/postgres
+    expose:
+      - "5432"
+
+  app:
+    container_name: log-processor-app
+    build:
+      dockerfile: develop/Dockerfile
+      context: ../
+    image: log-processor-app
+    volumes:
+      - ../src:/project
+    env_file:
+      - ./envs/app
+    expose:
+      - "8000"
+    depends_on:
+      - postgres
+    entrypoint: ["gunicorn", "log_processor.wsgi", "--bind", "0.0.0.0:8000", "--reload"]
+
+  nginx:
+    container_name: log-processor-nginx
+    image: nginx:1.24.0
+    restart: always
+    volumes:
+      - ./nginx/nginx.conf:/etc/nginx/conf.d/default.conf
+      - ../src/static:/var/www/data/static
+    ports:
+      - "80:80"
+    depends_on:
+      - app
