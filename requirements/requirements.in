@@ -13,3 +13,6 @@ jsonschema
 
 # python
 pip-tools
+
+# admin
+django-admin-rangefilter
