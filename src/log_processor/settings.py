@@ -33,8 +33,9 @@ ALLOWED_HOSTS = ['localhost', '127.0.0.1']
 INSTALLED_APPS = [
     'log_processor.logs',
 
-    'rest_framework',
     'django_filters',
+    'rangefilter',
+    'rest_framework',
 
     'django.contrib.admin',
     'django.contrib.auth',

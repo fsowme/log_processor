@@ -19,6 +19,8 @@ django==5.0.4
     #   -r requirements.in
     #   django-filter
     #   djangorestframework
+django-admin-rangefilter==0.12.4
+    # via -r requirements.in
 django-filter==24.2
     # via -r requirements.in
 djangorestframework==3.15.1
