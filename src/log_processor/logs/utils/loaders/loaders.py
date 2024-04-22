@@ -9,6 +9,12 @@ from .readers import FileReader, ReaderType
 
 
 class BaseLoader(metaclass=abc.ABCMeta):
+    """Standard loading flow:
+
+    The loader opens and reads the source using one of the readers (BaseReader subclass),
+    converts the content into python types using a parser (BaseParser subclass),
+    then creates objects of a specific data model"""
+
     def __init__(self, reader_name: str, parser_name: str) -> None:
         self.reader_class = self._get_reader_class(reader_name)
         self.parser_class = self._get_parser_class(parser_name)

@@ -5,6 +5,8 @@ from .exceptions import NotFoundError, ReadingError
 
 
 class BaseReader(metaclass=abc.ABCMeta):
+    """Opens the source at the address. Works as a context manager"""
+
     def __init__(self, file_path: str):
         self.file_path = file_path
 
