@@ -21,9 +21,15 @@ django-elasticsearch-dsl, но это не в рамках тестового
 
 Запуск проекта: 
 ```
-git clone git@github.com:fsowme/log_processor.git && cd log_processor
-docker-compose -f develop/docker-compose.yml up -d
-docker-compose -f develop/docker-compose.yml run --rm app python manage.py migrate
-docker-compose -f develop/docker-compose.yml run --rm app python manage.py collectstatic
-docker-compose -f develop/docker-compose.yml run --rm app python manage.py createsuperuser
+- git clone git@github.com:fsowme/log_processor.git && cd log_processor
+- docker-compose -f develop/docker-compose.yml up -d
+- docker-compose -f develop/docker-compose.yml run --rm app python manage.py migrate
+- docker-compose -f develop/docker-compose.yml run --rm app python manage.py collectstatic
+- docker-compose -f develop/docker-compose.yml run --rm app python manage.py createsuperuser
+```
+
+Загрузка логов:
+```
+- Скопировать файл в папку src
+- docker-compose -f develop/docker-compose.yml run --rm app python manage.py load_log nginx --parser=json --reader=file --source=nginx_json_logs.txt
 ```
