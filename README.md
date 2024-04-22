@@ -32,5 +32,5 @@ django-elasticsearch-dsl, но это не в рамках тестового
 ```
 - Скопировать файл в папку src
 - docker-compose -f develop/docker-compose.yml run --rm app python manage.py load_log \
-  nginx --parser=json --reader=file --source=nginx_json_logs.txt
+  nginx --parser=json --reader=file --source=<имя файла>
 ```
