@@ -34,3 +34,8 @@ django-elasticsearch-dsl, но это не в рамках тестового
 - docker-compose -f develop/docker-compose.yml run --rm app python manage.py load_log \
   nginx --parser=json --reader=file --source=<имя файла>
 ```
+
+Запуск тестов:
+```
+docker-compose -f develop/docker-compose.yml run --rm app python manage.py test
+```
