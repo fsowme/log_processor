@@ -7,6 +7,8 @@ from .exceptions import EventParsingError
 
 
 class BaseParser(metaclass=abc.ABCMeta):
+    """Converts raw data to python types"""
+
     @property
     @abc.abstractmethod
     def name(self) -> str:
