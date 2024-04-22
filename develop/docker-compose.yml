@@ -18,13 +18,14 @@ services:
     image: log-processor-app
     volumes:
       - ../src:/project
+      - ./run.sh:/project/run.sh
     env_file:
       - ./envs/app
     expose:
       - "8000"
     depends_on:
       - postgres
-    entrypoint: ["gunicorn", "log_processor.wsgi", "--bind", "0.0.0.0:8000", "--reload"]
+    entrypoint: ["bash", "run.sh"]
 
   nginx:
     container_name: log-processor-nginx
